@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: bookstore-test
+
+book:
+  file:
+    path: books.json
+
+jsonplaceholder:
+  api:
+    url: https://jsonplaceholder.typicode.com

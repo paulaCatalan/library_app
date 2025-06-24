@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: bookstore
+
+book:
+  file:
+    path: books.json
+
+suggestions:
+  file:
+    path: suggestions.json
+
+jsonplaceholder:
+  api:
+    url: https://jsonplaceholder.typicode.com/comments

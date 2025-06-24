@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggest a Book</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font for a nicer look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 p-10 bg-gray-800 rounded-xl shadow-lg">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
+                Suggest a Book
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-400">
+                Help us grow our library by suggesting a new book.
+            </p>
+        </div>
+        <!-- The Form -->
+        <form id="book-suggestion-form" class="mt-8 space-y-6">
+            <!-- Title Field -->
+            <div>
+                <label for="title" class="block mb-2 text-sm font-medium text-gray-300">Title</label>
+                <input type="text" id="title" name="title" required
+                       class="w-full p-2.5 bg-gray-700 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                       placeholder="The Hobbit">
+            </div>
+            <!-- Author Field -->
+            <div>
+                <label for="author" class="block mb-2 text-sm font-medium text-gray-300">Author</label>
+                <input type="text" id="author" name="author" required
+                       class="w-full p-2.5 bg-gray-700 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                       placeholder="J.R.R. Tolkien">
+            </div>
+            <!-- Submit Button -->
+            <div>
+                <button type="submit"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500 transition duration-300">
+                    Submit Suggestion
+                </button>
+            </div>
+        </form>
+        <!-- Message Area for Success/Error -->
+        <div id="message-area" class="hidden p-4 mt-4 text-sm rounded-lg" role="alert">
+            <!-- Message will be inserted here by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get references to the form and message area
+    const bookForm = document.getElementById('book-suggestion-form');
+    const messageArea = document.getElementById('message-area');
+
+    // Listen for the form submission event
+    bookForm.addEventListener('submit', async (event) => {
+        // Prevent the default browser action (which would reload the page)
+        event.preventDefault();
+
+        // Hide any previous messages
+        messageArea.classList.add('hidden');
+
+        // Create a FormData object from the form
+        const formData = new FormData(bookForm);
+        // Convert FormData to a simple JavaScript object
+        const bookData = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/api/suggestions/suggest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // Convert the JavaScript object to a JSON string
+                body: JSON.stringify(bookData),
+            });
+
+            // Check if the request was successful
+            if (response.ok) {
+                // Show a success message
+                showMessage('Success! Thank you for your suggestion.', 'success');
+                // Clear the form fields
+                bookForm.reset();
+            } else {
+                // Handle server errors
+                const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred.' }));
+                const errorMessage = errorData.message || 'An error occurred on the server.';
+                showMessage(`Error: ${errorMessage}`, 'error');
+            }
+        } catch (error) {
+            // Handle network errors
+            console.error('Fetch error:', error);
+            showMessage('A network error occurred. Please try again later.', 'error');
+        }
+    });
+
+    // Helper function to display messages to the user
+    function showMessage(message, type) {
+        messageArea.textContent = message;
+        // Apply different styles based on the message type
+        if (type === 'success') {
+            messageArea.className = 'p-4 text-sm text-green-200 bg-green-800 rounded-lg';
+        } else { // 'error'
+            messageArea.className = 'p-4 text-sm text-red-200 bg-red-800 rounded-lg';
+        }
+        // Make the message area visible
+        messageArea.classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
+
